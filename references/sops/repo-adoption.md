@@ -74,7 +74,7 @@ Lege die Dokumente in der Reihenfolge an, abhängig vom Level:
 - **Deployment Gate** (Checkliste vor Prod-Verwendung)
 - **Failure Triage** (Symptom-Tabelle → Ursache → Fix)
 - **Source Location** (lokaler Pfad)
-- **Shared Infrastructure** (Supabase, Trigger.dev `proj_suqvlluhdrhlsvpodagx`, Vercel)
+- **Shared Infrastructure** (Supabase, Trigger.dev `proj_<your-project-id>`, Vercel)
 - **Authentication** + Env-Vars
 - Spezifika (siehe „RAG-Grounding" in [legal-kb.md](legal-kb.md))
 
