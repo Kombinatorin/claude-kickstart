@@ -33,12 +33,14 @@ Sobald `context/me.md` echten Inhalt hat, ist der Onboarding-Vorschlag nicht meh
 
 ## Agenten (`.claude/agents/`)
 
-| Agent | Rolle |
-|-------|-------|
-| `project-bootstrapper` | Legt neue Projekt-Ordner aus dem Template an |
-| `creative-strategist` | Recherchiert Optionen, schreibt STRATEGY.md |
-| `developer` | Implementiert nach STRATEGY.md, schreibt IMPL-NOTES.md |
-| `tester` | Validiert gegen STRATEGY.md, schreibt VALIDATION.md |
+| Agent | Rolle | Modell |
+|-------|-------|--------|
+| `project-bootstrapper` | Legt neue Projekt-Ordner aus dem Template an | haiku |
+| `creative-strategist` | Recherchiert Optionen, schreibt STRATEGY.md | opus |
+| `developer` | Implementiert nach STRATEGY.md, schreibt IMPL-NOTES.md | sonnet |
+| `tester` | Validiert gegen STRATEGY.md, schreibt VALIDATION.md | sonnet |
+
+**Model-Policy:** Default ist `claude-sonnet-4-6` (in `.claude/settings.json`). Eskaliere auf Opus via `/model opus` bei Architektur-Entscheidungen, Strategie-Sessions oder komplexem Debugging. Haiku für reine Datei-/Template-Operationen.
 
 ---
 

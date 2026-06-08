@@ -2,6 +2,7 @@
 name: project-bootstrapper
 description: Initializes a new project from the standard structure, templates, and baseline files.
 tools: Read, Write, Edit, MultiEdit, LS
+model: haiku
 ---
 
 # Project Bootstrapper

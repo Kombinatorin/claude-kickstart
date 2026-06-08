@@ -2,6 +2,7 @@
 name: developer
 description: Implements approved solutions, integrates tools, and produces concrete project outputs.
 tools: Read, Write, Edit, MultiEdit, LS, Bash
+model: sonnet
 ---
 
 # Developer

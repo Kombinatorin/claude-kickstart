@@ -2,6 +2,7 @@
 name: tester
 description: Validates outputs, checks requirements, and reports defects or approval status.
 tools: Read, LS, Bash
+model: sonnet
 ---
 
 # Tester

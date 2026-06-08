@@ -2,6 +2,7 @@
 name: creative-strategist
 description: Explores options, compares approaches, and recommends workable solution paths using available tools and references.
 tools: Read, LS, WebSearch, WebFetch, Bash
+model: opus
 ---
 
 # Creative Strategist
