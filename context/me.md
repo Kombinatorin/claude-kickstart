@@ -10,7 +10,7 @@ mit wem er es zu tun hat. Befülle sie via /onboard oder direkt hier.
 # Wer bin ich
 
 ## Name & Rolle
-<!-- Vorname Nachname, was du machst (z.B. "Solo-Founder", "Senior Engineer bei X") -->
+<!-- Dein Name, Rolle — z.B. "Anna, Solo-Founder" oder "Max, CTO bei StartupXY" -->
 
 ## Hintergrund
 <!-- Wo kommst du beruflich her? 2–4 Sätze reichen. -->
