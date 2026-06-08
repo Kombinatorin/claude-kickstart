@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Claude-Kickstart — Implementierungsplan</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --fg: #1a1a1a;
+    --muted: #5a5a5a;
+    --accent: #c2410c;
+    --accent-soft: #fff7ed;
+    --border: #e5e5e0;
+    --code-bg: #f4f4ef;
+    --table-head: #f0efe9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  h1 {
+    font-size: 32px;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+  }
+  h1 + .subtitle {
+    color: var(--muted);
+    font-size: 17px;
+    margin-bottom: 40px;
+  }
+  h2 {
+    font-size: 22px;
+    margin: 48px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 17px;
+    margin: 32px 0 12px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+  h4 {
+    font-size: 16px;
+    margin: 24px 0 8px;
+  }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 16px; padding-left: 24px; }
+  li { margin-bottom: 6px; }
+  strong { color: var(--fg); }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 13.5px;
+    color: #b45309;
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 18px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    line-height: 1.5;
+  }
+  pre code {
+    background: transparent;
+    padding: 0;
+    color: var(--fg);
+    font-size: 13px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 14.5px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: var(--table-head);
+    font-weight: 600;
+    border-bottom: 2px solid var(--border);
+  }
+  blockquote, .callout {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 14px 18px;
+    margin: 16px 0;
+    border-radius: 0 6px 6px 0;
+  }
+  .callout strong { color: var(--accent); }
+  .lane {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .lane:last-child { border-bottom: none; }
+  .lane-label {
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .phase {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .phase-num {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 10px;
+  }
+  .skill-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 10px 0;
+  }
+  .skill-card h4 {
+    margin: 0 0 8px;
+    color: var(--accent);
+    font-family: "SF Mono", monospace;
+    font-size: 14.5px;
+  }
+  .skill-card dl { margin: 0; }
+  .skill-card dt {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+  }
+  .skill-card dd {
+    margin: 2px 0 0;
+    font-size: 14.5px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+  .meta {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 60px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<h1>Claude-Kickstart</h1>
+<div class="subtitle">Starter-Repo für Claude-Code-Anfänger — Implementierungsplan</div>
+
+<h2>Context</h2>
+<p><strong>Claude-Kickstart</strong> ist ein öffentlich teilbares Starter-Repo für alle, die mit Claude Code beginnen und sofort ein durchdachtes, modulares Operating-Model nutzen wollen — statt sich Strukturen, Skills und Rituale mühsam selbst zusammenzusuchen.</p>
+<p>Das Problem, das es löst: Wer Claude Code neu aufsetzt, steht vor einer leeren Wand. Welche Dateien gehören in <code>.claude/</code>? Was kommt in eine sinnvolle <code>CLAUDE.md</code>? Welche Skills lohnen sich? Wie befüllt man Kontext, ohne dass er nach drei Wochen veraltet ist? Claude-Kickstart liefert die Antworten in Form eines klonbaren Repos mit geführtem Einstieg.</p>
+
+<h3>Was der Nutzer bekommt</h3>
+<ul>
+  <li>Vorgefertigtes, modulares Operating-Model (Rules, Agents, Skills, Templates, Operations)</li>
+  <li>Interaktives Onboarding via <code>/onboard</code> — eine geführte Variante von <code>/grill-me</code>, die durch alle <code>context/*.md</code>-Dateien führt und sie direkt befüllt</li>
+  <li>Lauffähige Wochenrhythmen (<code>/session-start</code>, <code>/session-end</code>, <code>/weekly-review</code>)</li>
+  <li>Fiktive Mock-Persona als Live-Beispiel in <code>references/examples/</code></li>
+  <li>Klare "Du darfst alles ändern"-Botschaft an Schlüsselstellen</li>
+</ul>
+
+<h3>Was bewusst NICHT kommt</h3>
+<ul>
+  <li>Keine vorkonfigurierten MCP-Server (<code>.mcp.json</code> ist leer mit Anleitung) — der Nutzer entscheidet selbst</li>
+  <li>Keine domänen- oder projektspezifischen Skills, SOPs oder Agents</li>
+  <li>Keine vorausgefüllten Kontakte, Projekte oder Brainstorms</li>
+</ul>
+
+<div class="callout">
+  <strong>Repo-Speicherort:</strong> lokaler Arbeitsordner des Nutzers (z.B. <code>~/Desktop/Claude/Claude-Kickstart/</code>)<br>
+  Neues Git-Repo · MIT-Lizenz · später Push auf öffentliches GitHub · <strong>Sprache: Deutsch</strong> (Prosa) + Englisch (Code/Pfade)
+</div>
+
+<h2>Bootstrap-Erfahrung: "Link + 'mach bitte'"</h2>
+<p><strong>Ziel-User-Experience:</strong> Der Nutzer öffnet Claude (Claude Code oder claude.ai), fügt die Repo-URL in den Chat ein und schreibt z.B. <em>"https://github.com/&lt;owner&gt;/claude-kickstart — mach bitte"</em>. Claude erledigt den Rest.</p>
+<p><strong>Wie das technisch funktioniert:</strong> Die Intelligenz liegt <strong>im Repo selbst</strong>, nicht im Nutzer-Setup. Claude fetcht die URL, liest dort eine Bootstrap-Anweisung und folgt ihr Schritt für Schritt.</p>
+
+<h3>Technische Mechanik</h3>
+
+<div class="phase">
+  <h4>1. README.md beginnt mit einem Agent-Block</h4>
+  <pre><code>## 🤖 Hinweis für Claude Code Agents
+
+Wenn ein Nutzer dir diese URL gegeben hat mit einer Setup-Bitte
+("mach bitte", "setze auf", "installier das", o.ä.), folge exakt der
+Anleitung in BOOTSTRAP.md. Frage nicht erst, ob du sollst — der Nutzer
+hat dich bereits beauftragt.</code></pre>
+</div>
+
+<div class="phase">
+  <h4>2. BOOTSTRAP.md — deterministische Schritt-Anweisung</h4>
+  <p>Neue Datei im Repo-Root mit klarer Schritt-für-Schritt-Anweisung für Claude:</p>
+  <ul>
+    <li><strong>Schritt 1 — Zielordner klären:</strong> Frage den Nutzer wo Claude-Kickstart entstehen soll (aktueller Ordner / neuer Unterordner / eigener Pfad)</li>
+    <li><strong>Schritt 2 — Klonen:</strong> <code>git clone</code> in den Zielpfad, bei Konflikt abbrechen und fragen</li>
+    <li><strong>Schritt 3 — Verzeichnis wechseln:</strong> <code>cd</code> + <code>ls</code>-Verifikation</li>
+    <li><strong>Schritt 4 — Kurze Erklärung:</strong> "Repo ist da, ich starte jetzt das Onboarding"</li>
+    <li><strong>Schritt 5 — /onboard aufrufen</strong></li>
+    <li><strong>Fehlerpfade:</strong> kein git → Installations-Doku · Netzwerkfehler → einmal retry · keine Schreibrechte → Pfad wechseln</li>
+  </ul>
+</div>
+
+<div class="phase">
+  <h4>3. Nutzer-Block in README (separat vom Agent-Block)</h4>
+  <blockquote>"<strong>So startest du:</strong> Öffne Claude (Code oder claude.ai), gib diesen Link in den Chat ein und schreib 'mach bitte' — Claude erledigt den Rest."</blockquote>
+</div>
+
+<h3>Warum das funktioniert</h3>
+<ul>
+  <li>Claude hat <code>WebFetch</code> standardmäßig verfügbar → kann jede öffentliche URL lesen</li>
+  <li>Claude folgt strukturierten, klaren Schritt-für-Schritt-Anweisungen aus Markdown-Dateien zuverlässig</li>
+  <li>Der <code>BOOTSTRAP.md</code>-Pfad ist deterministisch — Claude muss nichts "erraten"</li>
+  <li>Funktioniert ohne jegliches Pre-Setup beim Nutzer: kein <code>npx</code>, kein <code>install.sh</code>, kein lokales Skript</li>
+</ul>
+
+<h3>Was im Plan ergänzt wird</h3>
+<ul>
+  <li>Neue Datei <strong><code>BOOTSTRAP.md</code></strong> im Repo-Root (~50 Zeilen)</li>
+  <li><code>README.md</code> bekommt zwei Blöcke: einen für Nutzer ("So startest du"), einen für Agents ("Hinweis für Claude Code Agents")</li>
+  <li>Verification erweitert: End-to-End-Test im frischen Ordner mit Trigger-Satz</li>
+</ul>
+
+<h2>Finale Ordnerstruktur</h2>
+
+<pre><code>Claude-Kickstart/
+├── README.md                          ← Quickstart (5 Min): Klonen → /onboard → erstes Projekt
+├── CLAUDE.md                          ← Schlanke Kontrolldatei (&lt; 150 Zeilen), Referenz-basiert
+├── LICENSE                            ← MIT
+├── .gitignore                         ← Standard + .env*, settings.local.json, brainstorms-Captures
+│
+├── .claude/
+│   ├── settings.json                  ← Minimal: deny-Regeln + Stop-Hook → /session-end
+│   ├── rules/                         ← 8 generische Regeln (portiert)
+│   │   ├── operating-principles.md
+│   │   ├── file-governance.md
+│   │   ├── communication-style.md
+│   │   ├── tool-access-policy.md
+│   │   ├── reference-policy.md
+│   │   ├── update-feedback-loops.md
+│   │   ├── handoff-protocol.md
+│   │   └── grill-me-recommendation.md
+│   ├── agents/                        ← 4 generische Rollen
+│   │   ├── project-bootstrapper.md
+│   │   ├── creative-strategist.md     ← Domain-Kontext entfernt
+│   │   ├── developer.md
+│   │   └── tester.md
+│   ├── skills/
+│   │   └── grill-me/
+│   │       └── SKILL.md               ← Interview-Engine (Herzstück)
+│   └── commands/                      ← 4 generische Slash-Commands
+│       ├── onboard.md                 ← NEU: geführter /grill-me-Lauf
+│       ├── session-start.md           ← Portiert (entpersönlicht)
+│       ├── session-end.md             ← Portiert (entpersönlicht)
+│       └── weekly-review.md           ← Portiert (entpersönlicht)
+│
+├── context/                           ← LEERE TEMPLATES + Inline-Coaching-Kommentare
+│   ├── me.md                          ← Wer bist du, Rolle, Arbeitsstil
+│   ├── work.md                        ← Beruflicher Kontext, Domänen
+│   ├── goals.md                       ← Quartals-/Jahresziele
+│   ├── preferences.md                 ← Kommunikations-Stil, No-Gos
+│   ├── tools-stack.md                 ← Tool-Inventar
+│   ├── team.md                        ← Team/Solo (optional)
+│   └── current-priorities.md          ← Aktuelle Foki
+│   Jede Datei: "Du darfst Struktur und Felder frei anpassen — ein Vorschlag."
+│
+├── references/
+│   ├── claude/                        ← Offizielle Docs, MCP, Subagents (portiert)
+│   ├── tools/                         ← Generische Tool-Refs (firecrawl, github, supabase…)
+│   ├── design/                        ← ui-patterns, web-guidelines, flyer-guidelines
+│   ├── sops/
+│   │   ├── grill-me.md                ← Portiert
+│   │   ├── onboard.md                 ← NEU
+│   │   ├── weekly-review.md           ← NEU
+│   │   ├── mcp-use.md                 ← Portiert
+│   │   └── repo-adoption.md           ← Portiert
+│   └── examples/
+│       ├── README.md                  ← Erklärt: fiktive Demo-Persona
+│       └── filled-context/            ← MOCK-PERSONA "Sam, Indie-Developer"
+│           ├── me.md
+│           ├── work.md
+│           ├── goals.md
+│           ├── preferences.md
+│           ├── tools-stack.md
+│           ├── team.md
+│           └── current-priorities.md
+│
+├── templates/                         ← 5 generische Templates (portiert)
+│   ├── decision-entry.md
+│   ├── handoff-template.md
+│   ├── project-readme.md
+│   ├── project-status.md
+│   ├── task-brief.md
+│   └── session-summary.md
+│
+├── operations/
+│   ├── inbox.md                       ← Leer + Anleitung
+│   ├── roadmap.md                     ← Leer + Anleitung
+│   ├── maintenance.md                 ← Leer + Anleitung
+│   ├── weekly-review.md               ← Leerer Log + Format-Beispiel
+│   └── brainstorms/
+│       └── README.md                  ← Erklärt: Output von /grill-me & /onboard
+│
+├── decisions/
+│   └── log.md                         ← Leer + Verweis auf decision-entry.md
+│
+└── projects/
+    ├── active/                        ← Leer (.gitkeep + README)
+    ├── archive/                       ← Leer (.gitkeep + README)
+    └── _templates/
+        └── project-template/          ← Portiert
+            ├── README.md
+            ├── STRATEGY.md
+            ├── IMPL-NOTES.md
+            └── VALIDATION.md
+</code></pre>
+
+<div class="callout">
+  <strong>Anpassbarkeits-Hinweis:</strong> Alle TEMPLATE-Dateien (<code>context/*.md</code>, <code>operations/*.md</code>, <code>decisions/log.md</code>, <code>project-template/*</code>) erhalten am Dateikopf einen einheitlichen Kommentar:
+  <pre><code>&lt;!--
+Dies ist ein Vorschlag, keine Vorschrift.
+Du kannst Felder ändern, hinzufügen oder löschen.
+Halte dich an die Regel: ein Zweck pro Datei.
+--&gt;</code></pre>
+</div>
+
+<h2>Das <code>/onboard</code>-Skill (Herzstück für Anfänger)</h2>
+<p><strong>Speicherort:</strong> <code>.claude/commands/onboard.md</code> — als Slash-Command, kein eigenes Skill-Verzeichnis nötig.</p>
+<p><strong>Flow:</strong> geführte Variante des <code>/grill-me</code>-Patterns mit fixem Curriculum statt Free-Topic.</p>
+
+<div class="phase">
+  <h4><span class="phase-num">0</span>Willkommen & System-Erklärung</h4>
+  <p>Claude erklärt in 3 kurzen Absätzen:</p>
+  <ol>
+    <li>Was Claude-Kickstart ist (modulares Operating-Model, frei anpassbar)</li>
+    <li>Wie der Onboarding-Lauf funktioniert (eine Frage nach der anderen, jederzeit überspringbar, am Ende sind 7 Dateien befüllt)</li>
+    <li><strong>Wichtig:</strong> "Alles, was du gleich siehst, ist ein Vorschlag. Du darfst Struktur, Felder, sogar ganze Dateien ändern. Die Templates sind dein Startpunkt, nicht dein Käfig."</li>
+  </ol>
+</div>
+
+<div class="phase">
+  <h4><span class="phase-num">1–7</span>Geführtes Befüllen der context/*.md</h4>
+  <p>Pro Phase: eine Datei, 3–6 Fragen, nach jeder Antwort <strong>direkt</strong> in die jeweilige <code>context/*.md</code> schreiben (gleiche Persistenz-Disziplin wie <code>/grill-me</code>). Bei "weiß nicht" → Frage mit Owner "TBD" markiert, weiter.</p>
+  <p>Reihenfolge: <code>me.md</code> → <code>preferences.md</code> → <code>work.md</code> → <code>goals.md</code> → <code>tools-stack.md</code> → <code>team.md</code> → <code>current-priorities.md</code></p>
+  <p>Nach jeder Phase kurzer Recap: "✅ context/me.md ist befüllt — schau gern rein, du kannst alles ändern."</p>
+</div>
+
+<div class="phase">
+  <h4><span class="phase-num">8</span>Skills- &amp; Shortcuts-Tour</h4>
+  <p>Nach dem Befüllen erklärt Claude in kompakten Karten — eine pro Skill/Command:</p>
+
+  <div class="skill-card">
+    <h4>/grill-me &lt;thema&gt;</h4>
+    <dl>
+      <dt>Was es macht</dt>
+      <dd>Befragt dich relentless zu einem Thema, schreibt jede Antwort sofort in eine Capture-Datei in <code>operations/brainstorms/</code>.</dd>
+      <dt>Wann nutzen</dt>
+      <dd>Wenn du Klarheit über eine Entscheidung, ein Konzept oder einen Plan brauchst und der Kopf voll ist.</dd>
+      <dt>Einfluss</dt>
+      <dd>Nichts wird "produktiv" — alles bleibt im Brainstorm-File, bis du es bewusst in <code>decisions/log.md</code> oder einen Projekt-Ordner promotest.</dd>
+    </dl>
+  </div>
+
+  <div class="skill-card">
+    <h4>/session-start</h4>
+    <dl>
+      <dt>Was es macht</dt>
+      <dd>Liest <code>context/*.md</code> und <code>operations/inbox.md</code>, gibt dir einen Tagesplan.</dd>
+      <dt>Wann nutzen</dt>
+      <dd>Immer am Anfang einer Arbeits-Session.</dd>
+      <dt>Einfluss</dt>
+      <dd>Nur Lese-Operationen, kein Schreiben.</dd>
+    </dl>
+  </div>
+
+  <div class="skill-card">
+    <h4>/session-end</h4>
+    <dl>
+      <dt>Was es macht</dt>
+      <dd>Fragt dich, was heute passiert ist, schreibt eine Session-Summary, aktualisiert <code>operations/inbox.md</code> mit offenen Punkten.</dd>
+      <dt>Wann nutzen</dt>
+      <dd>Am Ende einer Session — auch kurze.</dd>
+      <dt>Einfluss</dt>
+      <dd>Schreibt in <code>operations/</code>, niemals in <code>context/</code> ohne Rückfrage.</dd>
+    </dl>
+  </div>
+
+  <div class="skill-card">
+    <h4>/weekly-review</h4>
+    <dl>
+      <dt>Was es macht</dt>
+      <dd>Wochenrückblick + Ausblick. Liest alle Session-Summaries der Woche, fasst zusammen, fragt nach Lessons Learned.</dd>
+      <dt>Wann nutzen</dt>
+      <dd>Freitags oder Sonntags.</dd>
+      <dt>Einfluss</dt>
+      <dd>Schreibt in <code>operations/weekly-review.md</code>.</dd>
+    </dl>
+  </div>
+
+  <p>Abschluss: "Möchtest du jetzt dein erstes Projekt anlegen (ich rufe project-bootstrapper auf), oder lieber selbst durchs Repo navigieren?"</p>
+</div>
+
+<div class="phase">
+  <h4><span class="phase-num">9</span>Wrap-up &amp; Anpassungs-Hinweis</h4>
+  <ul>
+    <li>Hinweis auf <code>references/examples/filled-context/</code> ("So sieht eine fiktive Beispiel-Persona aus — vergleich gern")</li>
+    <li>Verweis auf <code>references/sops/</code> ("Hier liegen die SOPs für jedes Ritual")</li>
+    <li>"Wenn dir etwas an der Struktur nicht passt: ändere es. Das Repo gehört dir."</li>
+  </ul>
+</div>
+
+<h2>Mock-Persona "Sam, Indie-Developer"</h2>
+<p>Komplett fiktiv und neutral — keine Bezüge zu realen Personen, Marken oder Projekten. Liegt in <code>references/examples/filled-context/</code>.</p>
+<ul>
+  <li><strong>Rolle:</strong> Solo-Indie-Developer, baut SaaS-Tools für andere Indies</li>
+  <li><strong>Werkzeuge:</strong> TypeScript, Next.js, Supabase, Vercel</li>
+  <li><strong>Stil:</strong> Async-first, kurze Sessions, viele Side-Quests</li>
+  <li><strong>Ziele:</strong> $5k MRR in 12 Monaten mit einem fokussierten Produkt</li>
+  <li>Jede der 7 context-Dateien wird mit 5–10 Zeilen plausiblem Inhalt befüllt</li>
+</ul>
+<p><em>Zweck:</em> Anfänger öffnen die Beispiele und sehen sofort "Aha, <strong>so</strong> detailliert/kurz soll das aussehen."</p>
+
+<h2>Dateibehandlung: Portierungs-Lanes</h2>
+
+<div class="lane">
+  <div class="lane-label">1:1 portieren</div>
+  <div>
+    <code>.claude/rules/*.md</code> (alle 8) · <code>developer.md</code>, <code>tester.md</code>, <code>project-bootstrapper.md</code> · <code>grill-me/SKILL.md</code> · <code>references/claude/*</code>, <code>references/tools/*</code> (außer projektspezifischen), <code>references/design/*</code> · <code>references/sops/grill-me.md</code>, <code>mcp-use.md</code>, <code>repo-adoption.md</code> · <code>templates/*</code> (alle 5) · <code>projects/_templates/project-template/</code>
+  </div>
+</div>
+
+<div class="lane">
+  <div class="lane-label">Portieren + entpersönlichen</div>
+  <div>
+    <code>creative-strategist.md</code> (Domain-Kontext entfernen) · <code>session-start.md</code>, <code>session-end.md</code>, <code>weekly-review.md</code> · <code>.claude/settings.json</code> (deny generisch, Stop-Hook → <code>/session-end</code>) · <code>CLAUDE.md</code> (komplett neu)
+  </div>
+</div>
+
+<div class="lane">
+  <div class="lane-label">Neu erstellen</div>
+  <div>
+    <code>README.md</code> · <code>CLAUDE.md</code> · <code>.claude/commands/onboard.md</code> · <code>references/sops/onboard.md</code>, <code>weekly-review.md</code> · <code>references/examples/README.md</code> + <code>filled-context/*</code> · 7 leere <code>context/*.md</code> mit Inline-Coaching · 4 <code>operations/*.md</code> mit Anleitungen · <code>brainstorms/README.md</code> · <code>decisions/log.md</code> · <code>projects/active|archive/README.md</code> · <code>LICENSE</code> · <code>.gitignore</code> · <code>.mcp.json</code> (leer mit Doku-Kommentar)
+  </div>
+</div>
+
+<h2>Wiederverwendete Patterns</h2>
+
+<table>
+  <thead>
+    <tr><th>Pattern</th><th>Quelle</th><th>Wiederverwendung</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Interview-Engine (1 Frage, Empfehlung, sofortige Persistenz)</td><td><code>grill-me/SKILL.md</code></td><td><code>/onboard</code> nutzt dieselbe Mechanik mit fixem Curriculum</td></tr>
+    <tr><td>Multi-Agent-Handoff (STRATEGY → IMPL → VALIDATION)</td><td><code>handoff-protocol.md</code></td><td>Unverändert für alle Projekte</td></tr>
+    <tr><td>Capture-File-Pfad-Konvention</td><td>grill-me SOP</td><td><code>operations/brainstorms/{date}-{slug}.md</code> identisch</td></tr>
+    <tr><td>Decision-Promotion</td><td>grill-me SOP</td><td><code>decisions/log.md</code> via <code>templates/decision-entry.md</code></td></tr>
+    <tr><td>Modulare CLAUDE.md</td><td>AI.Instructor CLAUDE.md</td><td>Pattern übernommen, Inhalte ersetzt</td></tr>
+  </tbody>
+</table>
+
+<h2>Verification (End-to-End-Test)</h2>
+<ol>
+  <li><strong>Strukturtest:</strong> Repo klonen, <code>tree -L 3</code> gegen Sollstruktur abgleichen</li>
+  <li><strong>Cold-Start:</strong> Claude Code starten → CLAUDE.md korrekt geladen, keine Verweise auf gelöschte Dateien</li>
+  <li><strong>Onboarding-Lauf:</strong> <code>/onboard</code> durchspielen → alle 7 <code>context/*.md</code> befüllt, Phase 8 (Skill-Tour) sichtbar, Phase 9 (Wrap-up) erscheint</li>
+  <li><strong>Grill-Me-Test:</strong> <code>/grill-me test-thema</code> → Capture-Datei in <code>operations/brainstorms/</code></li>
+  <li><strong>Session-Rhythmus:</strong> <code>/session-start</code> → <code>/session-end</code> → <code>/weekly-review</code> aggregiert sauber</li>
+  <li><strong>Mock-Persona:</strong> <code>filled-context/me.md</code> plausibel + offensichtlich fiktiv</li>
+  <li><strong>Anpassbarkeit:</strong> Eine <code>context/*.md</code> strukturell verändern → <code>/session-start</code> läuft ohne Fehler</li>
+  <li><strong>Lizenz &amp; Ignore:</strong> MIT-LICENSE da, <code>.gitignore</code> deckt <code>.env*</code>, <code>settings.local.json</code>, <code>brainstorms/*.md</code> (außer README)</li>
+</ol>
+
+<h2>Implementierungs-Reihenfolge</h2>
+<ol>
+  <li>Repo-Skeleton (Ordner + leere Files + .gitignore + LICENSE)</li>
+  <li>Generische Files portieren (rules, agents, references, templates)</li>
+  <li>CLAUDE.md neu schreiben</li>
+  <li>settings.json + leere .mcp.json</li>
+  <li>Context-Templates mit Inline-Coaching</li>
+  <li>Mock-Persona befüllen</li>
+  <li>Operations-Skelette</li>
+  <li><strong><code>/onboard</code>-Command</strong> (zuletzt — referenziert alle anderen Files)</li>
+  <li>session-start/end + weekly-review entpersönlichen</li>
+  <li>README.md</li>
+  <li>Self-Test: vollständiger <code>/onboard</code>-Lauf im Repo</li>
+</ol>
+
+<h2>Sprache</h2>
+<p><strong>Alle prosaischen Inhalte auf Deutsch</strong> — Zielgruppe DACH-Raum.</p>
+<ul>
+  <li><strong>Deutsch:</strong> README, CLAUDE.md, Inline-Coaching, <code>/onboard</code>-Dialog, SOPs, Skill-Tour-Karten, Mock-Persona, Operations-Anleitungen</li>
+  <li><strong>Englisch:</strong> Code, Variablennamen, Dateinamen, Pfade, technische Identifier</li>
+  <li>Externe Referenzen (Anthropic-Docs, MCP-Spec) bleiben in ihrer Originalsprache mit deutscher Einordnung davor</li>
+</ul>
+
+<h2>Offene Punkte (vor Implementierung)</h2>
+<ul>
+  <li><strong>Repo-Name auf GitHub:</strong> <code>claude-kickstart</code> oder <code>claude-code-kickstart</code>?</li>
+  <li><strong>Push-Zeitpunkt:</strong> erst nach Self-Test oder schon nach Skeleton für inkrementelle Commits?</li>
+</ul>
+
+<div class="meta">
+  Plan generiert von Claude Code · Quelle: <code>~/.claude/plans/claude-kickstart-onboarding-interaktiv-quizzical-seal.md</code>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Decision Entry Template
+
+[YYYY-MM-DD] DECISION: ... | REASONING: ... | CONTEXT: ...

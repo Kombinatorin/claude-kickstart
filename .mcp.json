@@ -1,0 +1,13 @@
+{
+  "_comment": "MCP (Model Context Protocol) verbindet Claude mit externen Tools und Datenquellen. Diese Datei ist absichtlich leer — du entscheidest selbst, welche Server du anbindest. Konkrete Setups findest du in references/tools/ (github, supabase, firecrawl, ...) und references/claude/mcp-foundations.md (Grundlagen). Format-Beispiel siehe unten in '_example'.",
+  "mcpServers": {},
+  "_example": {
+    "github": {
+      "command": "github-mcp-server",
+      "args": ["--toolsets=default,actions"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

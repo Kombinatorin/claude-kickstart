@@ -1,0 +1,27 @@
+# Secrets & local overrides
+.env
+.env.*
+secrets/
+.claude/settings.local.json
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor noise
+.vscode/
+.idea/
+*.swp
+*~
+
+# Brainstorm captures (privater Output von /grill-me und /onboard)
+# Der README in operations/brainstorms/ bleibt versioniert
+operations/brainstorms/*.md
+!operations/brainstorms/README.md
+
+# Build/Node-Artefakte (falls Projekte unter projects/active/ Code enthalten)
+node_modules/
+dist/
+build/
+.next/
+*.log

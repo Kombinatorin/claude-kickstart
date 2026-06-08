@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./.claude/settings.local.json)"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Erinnerung: vor dem nächsten Start ggf. /session-end laufen lassen, damit die heutige Session sauber in operations/ landet.'"
+          }
+        ]
+      }
+    ]
+  }
+}
